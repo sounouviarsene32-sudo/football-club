@@ -1,0 +1,160 @@
+### Football Club API - Tests d'authentification
+### Fichier compatible avec l'extension REST Client de VS Code
+
+@baseUrl = http://localhost:8000/api
+@contentType = application/json
+
+###############################################
+# 1. Health Check
+###############################################
+
+### Health Check
+GET {{baseUrl}}/health
+Accept: {{contentType}}
+
+###############################################
+# 2. Authentification
+###############################################
+
+### Register - Inscription d'un nouvel utilisateur
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+Accept: {{contentType}}
+
+{
+  "name": "John Doe",
+  "email": "john.doe@example.com",
+  "password": "Password123!",
+  "password_confirmation": "Password123!"
+}
+
+### Login - Connexion avec utilisateur de test
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+Accept: {{contentType}}
+
+{
+  "email": "admin@football-club.com",
+  "password": "Admin123!"
+}
+
+### Login - Connexion avec identifiants invalides (doit échouer)
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+Accept: {{contentType}}
+
+{
+  "email": "admin@football-club.com",
+  "password": "WrongPassword"
+}
+
+###############################################
+# 3. Routes protégées (nécessitent un token)
+###############################################
+
+@token = YOUR_TOKEN_HERE
+
+### Me - Obtenir les informations de l'utilisateur connecté
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{token}}
+Accept: {{contentType}}
+
+### Refresh Token - Rafraîchir le token d'authentification
+POST {{baseUrl}}/auth/refresh
+Authorization: Bearer {{token}}
+Accept: {{contentType}}
+
+### Logout - Déconnexion
+POST {{baseUrl}}/auth/logout
+Authorization: Bearer {{token}}
+Accept: {{contentType}}
+
+###############################################
+# 4. Routes Football protégées
+###############################################
+
+### Get Football Teams - Liste des équipes (protégée)
+GET {{baseUrl}}/football/teams
+Authorization: Bearer {{token}}
+Accept: {{contentType}}
+
+### Get Football Team by ID - Détails d'une équipe (protégée)
+GET {{baseUrl}}/football/teams/1
+Authorization: Bearer {{token}}
+Accept: {{contentType}}
+
+### Get Football Teams - Sans token (doit échouer avec 401)
+GET {{baseUrl}}/football/teams
+Accept: {{contentType}}
+
+###############################################
+# 5. Tests de validation
+###############################################
+
+### Register - Sans email (doit échouer avec 422)
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+Accept: {{contentType}}
+
+{
+  "name": "Test User",
+  "password": "Password123!",
+  "password_confirmation": "Password123!"
+}
+
+### Register - Email invalide (doit échouer avec 422)
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+Accept: {{contentType}}
+
+{
+  "name": "Test User",
+  "email": "invalid-email",
+  "password": "Password123!",
+  "password_confirmation": "Password123!"
+}
+
+### Register - Mots de passe ne correspondent pas (doit échouer avec 422)
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+Accept: {{contentType}}
+
+{
+  "name": "Test User",
+  "email": "test@example.com",
+  "password": "Password123!",
+  "password_confirmation": "DifferentPassword123!"
+}
+
+### Login - Sans email (doit échouer avec 422)
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+Accept: {{contentType}}
+
+{
+  "password": "Password123!"
+}
+
+###############################################
+# Instructions d'utilisation
+###############################################
+
+# 1. Installer l'extension "REST Client" dans VS Code
+# 2. Démarrer le serveur Laravel: php artisan serve
+# 3. Exécuter les seeders: php artisan db:seed --class=UserSeeder
+# 4. Cliquer sur "Send Request" au-dessus de chaque requête
+# 5. Après avoir fait un login réussi, copier le token et le coller dans @token
+# 6. Tester les routes protégées avec le token
+
+###############################################
+# Comptes de test disponibles (après seeding)
+###############################################
+
+# Admin:
+#   Email: admin@football-club.com
+#   Password: Admin123!
+
+# Test User:
+#   Email: test@football-club.com
+#   Password: Test123!
