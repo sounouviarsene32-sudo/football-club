@@ -1,11 +1,17 @@
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
 
+function getAuthHeaders() {
+  const token = localStorage.getItem('auth_token')
+  return token ? { Authorization: `Bearer ${token}` } : {}
+}
+
 async function request(endpoint, options = {}) {
     const url = `${API_BASE_URL}${endpoint}`
     const config = {
         headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
+            ...getAuthHeaders(),
             ...options.headers,
         },
         ...options,
@@ -27,14 +33,16 @@ async function request(endpoint, options = {}) {
 }
 
 export const api = {
-    get: (endpoint) => request(endpoint, { method: 'GET' }),
-    post: (endpoint, data) => request(endpoint, {
+    get: (endpoint, options = {}) => request(endpoint, { method: 'GET', ...options }),
+    post: (endpoint, data, options = {}) => request(endpoint, {
         method: 'POST',
         body: JSON.stringify(data),
+        ...options,
     }),
-    put: (endpoint, data) => request(endpoint, {
+    put: (endpoint, data, options = {}) => request(endpoint, {
         method: 'PUT',
         body: JSON.stringify(data),
+        ...options,
     }),
-    delete: (endpoint) => request(endpoint, { method: 'DELETE' }),
+    delete: (endpoint, options = {}) => request(endpoint, { method: 'DELETE', ...options }),
 }

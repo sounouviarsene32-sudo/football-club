@@ -1,5 +1,20 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
+import { computed } from 'vue'
+import { RouterLink, RouterView, useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+
+const router = useRouter()
+const authStore = useAuthStore()
+
+const userInitial = computed(() => {
+  if (!authStore.user?.name) return ''
+  return authStore.user.name.charAt(0).toUpperCase()
+})
+
+async function handleLogout() {
+  await authStore.logout()
+  router.push({ name: 'login' })
+}
 </script>
 
 <template>
@@ -19,6 +34,15 @@ import { RouterLink, RouterView } from 'vue-router'
         <RouterLink to="/events" class="nav-link">Événements</RouterLink>
         <RouterLink to="/staff" class="nav-link">Staff</RouterLink>
       </nav>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar">{{ userInitial }}</div>
+          <span class="user-name">{{ authStore.user?.name }}</span>
+        </div>
+        <button class="logout-btn" @click="handleLogout">
+          Déconnexion
+        </button>
+      </div>
     </aside>
     <main class="main-content">
       <RouterView />
@@ -40,6 +64,8 @@ import { RouterLink, RouterView } from 'vue-router'
   position: fixed;
   height: 100vh;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .logo {
@@ -58,6 +84,7 @@ import { RouterLink, RouterView } from 'vue-router'
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  flex: 1;
 }
 
 .nav-link {
@@ -73,6 +100,60 @@ import { RouterLink, RouterView } from 'vue-router'
 .nav-link.router-link-active {
   color: white;
   background: #334155;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid #334155;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.user-avatar {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: #2563eb;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.user-name {
+  font-size: 0.875rem;
+  color: #e2e8f0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.logout-btn {
+  width: 100%;
+  padding: 0.5rem;
+  background: transparent;
+  color: #94a3b8;
+  border: 1px solid #475569;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.logout-btn:hover {
+  background: #334155;
+  color: white;
+  border-color: #64748b;
 }
 
 .main-content {
