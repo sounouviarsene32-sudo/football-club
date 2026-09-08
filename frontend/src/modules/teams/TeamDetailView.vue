@@ -16,7 +16,7 @@ async function loadTeam() {
   error.value = null
 
   try {
-    team.value = await api.get(`/football/teams/${route.params.id}`)
+    team.value = await api.get(`/teams/${route.params.id}`)
   } catch (err) {
     error.value = err.message
   } finally {

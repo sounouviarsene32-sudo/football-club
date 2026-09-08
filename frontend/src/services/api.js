@@ -25,7 +25,8 @@ async function request(endpoint, options = {}) {
             throw new Error(error.message || `HTTP error! status: ${response.status}`)
         }
 
-        return await response.json()
+        const data = await response.json()
+        return data.data ?? data
     } catch (error) {
         console.error(`API request failed: ${endpoint}`, error)
         throw error
